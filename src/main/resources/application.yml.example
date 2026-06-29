@@ -1,0 +1,48 @@
+# application.yml.example
+server:
+  port: 8080
+
+spring:
+  application:
+    name: TMI
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL:jdbc:mysql://localhost:3306/tmi}
+    username: ${DB_USERNAME:root}
+    password: your-local-password
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        show_sql: true
+        use_sql_comments: true
+
+logging:
+  level:
+    root: info
+    org:
+      hibernate:
+        SQL: debug
+        type:
+          descriptor:
+            sql:
+              BasicBinder:
+                TRACE
+
+jwt:
+  secret: your-jwt-secret
+  access-token-expiry: your-jwt-access-token-expiry
+  refresh-token-expiry: your-jwt-refresh-token-expiry
+
+cors:
+  allowed-origins: your-allowed-origins
