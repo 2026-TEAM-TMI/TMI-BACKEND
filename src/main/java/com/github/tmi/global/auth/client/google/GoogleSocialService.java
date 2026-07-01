@@ -12,6 +12,9 @@ import com.github.tmi.global.exception.TMIException;
 import com.github.tmi.member.domain.enums.SocialType;
 import com.github.tmi.member.service.SocialService;
 
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,15 +55,16 @@ public class GoogleSocialService implements SocialService {
 
 	private String getOAuth2Authentication(
 		final String authorizationCode) {
+		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+		body.add("grant_type", AUTH_CODE);
+		body.add("client_id", clientId);
+		body.add("client_secret", clientSecret);
+		body.add("redirect_uri", redirectUri);
+		body.add("code", authorizationCode);
+
 		GoogleAccessTokenResponse response;
 		try {
-			response = googleAuthApiClient.getOAuth2AccessToken(
-				AUTH_CODE,
-				clientId,
-				clientSecret,
-				redirectUri,
-				authorizationCode
-			);
+			response = googleAuthApiClient.getOAuth2AccessToken(body);
 		} catch (FeignException e) {
 			throw new TMIException(OAuthErrorCode.O_AUTH_TOKEN_ERROR);
 		}

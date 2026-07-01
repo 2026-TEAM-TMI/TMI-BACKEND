@@ -40,6 +40,7 @@ public class MemberService {
 		Member member = Member.create(
 			socialInfo.email(),
 			socialInfo.name(),
+			socialInfo.profileImage(),
 			socialInfo.socialId(),
 			socialInfo.socialType(),
 			Role.MEMBER

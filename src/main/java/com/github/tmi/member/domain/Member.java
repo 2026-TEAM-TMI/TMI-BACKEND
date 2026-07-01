@@ -35,6 +35,9 @@ public class Member {
 	@Column(nullable = true)
 	private String name;
 
+	@Column(nullable = true, length = 1024)
+	private String profileImage;
+
 	@Column(nullable = false)
 	private String socialId;
 
@@ -49,6 +52,7 @@ public class Member {
 	public static Member create(
 		final String email,
 		final String name,
+		final String profileImage,
 		final String socialId,
 		final SocialType socialType,
 		final Role role
@@ -56,6 +60,7 @@ public class Member {
 		return Member.builder()
 			.email(email)
 			.name(name)
+			.profileImage(profileImage)
 			.socialId(socialId)
 			.socialType(socialType)
 			.role(role)
