@@ -21,6 +21,7 @@ public enum OAuthErrorCode implements BaseCode {
  	*/
 	O_AUTH_TOKEN_ERROR(HttpStatus.UNAUTHORIZED, "OAuth 인증에 접근할 수 없습니다."),
 	GET_INFO_ERROR(HttpStatus.UNAUTHORIZED, "사용자의 정보를 가져올 수 없습니다."),
+	GITHUB_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "저장된 GitHub 토큰이 없습니다. GitHub 로그인이 필요합니다."),
 	INVALID_APPLE_ID_TOKEN(HttpStatus.UNAUTHORIZED, "일치하는 public key를 찾을 수 없습니다."),
 
 	/*
