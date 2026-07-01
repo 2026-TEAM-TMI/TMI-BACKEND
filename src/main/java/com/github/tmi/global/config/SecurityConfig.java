@@ -26,7 +26,8 @@ public class SecurityConfig {
 		"/swagger-ui/**",
 		"/v3/api-docs/**",
 		"/actuator/**",
-		"/api/v1/members/login"
+		"/api/v1/members/login",
+		"/api/v1/members/reissue"
 	};
 
 	@Value("${cors.allowed-origins}")

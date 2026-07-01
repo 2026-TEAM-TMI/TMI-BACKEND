@@ -3,6 +3,7 @@ package com.github.tmi.member.presentation;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,7 @@ import com.github.tmi.global.auth.dto.MemberSocialLoginRequest;
 import com.github.tmi.global.response.dto.SuccessResponse;
 import com.github.tmi.member.dto.LoginSuccessResponse;
 import com.github.tmi.member.dto.MemberInfoResponse;
+import com.github.tmi.member.dto.TokenReissueResponse;
 import com.github.tmi.member.exception.MemberSuccessCode;
 import com.github.tmi.member.service.MemberLoginService;
 import com.github.tmi.member.service.MemberService;
@@ -62,5 +64,14 @@ public class MemberController {
 	) {
 		MemberInfoResponse response = memberService.getMyInfo(memberId);
 		return ResponseEntity.ok(SuccessResponse.of(MemberSuccessCode.GET_MY_INFO_SUCCESS, response));
+	}
+
+	@PostMapping("/reissue")
+	public ResponseEntity<SuccessResponse<TokenReissueResponse>> reissue(
+		@CookieValue(value = REFRESH_TOKEN, required = false) final String refreshToken
+	) {
+		String accessToken = memberTokenService.reissueAccessToken(refreshToken);
+		return ResponseEntity.ok(
+			SuccessResponse.of(MemberSuccessCode.REISSUE_SUCCESS, TokenReissueResponse.of(accessToken)));
 	}
 }
