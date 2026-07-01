@@ -35,6 +35,10 @@ spring:
             client-id: your-google-client-id
             client-secret: your-google-client-secret
             redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/login/oauth2/code/google}
+          github:
+            client-id: your-github-client-id
+            client-secret: your-github-client-secret
+            redirect-uri: ${GITHUB_REDIRECT_URI:http://localhost:8080/login/oauth2/code/github}
 
 logging:
   level:
@@ -55,3 +59,6 @@ jwt:
 
 cors:
   allowed-origins: your-allowed-origins
+
+encryption:
+  secret: your-encryption-secret
