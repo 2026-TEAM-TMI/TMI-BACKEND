@@ -8,10 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.github.tmi.global.auth.dto.MemberSocialLoginRequest;
 import com.github.tmi.global.auth.dto.MemberSocialLoginResponse;
-import com.github.tmi.global.auth.exception.OAuthErrorCode;
+import com.github.tmi.global.auth.github.GithubTokenService;
 import com.github.tmi.global.auth.jwt.JwtTokenProvider;
 import com.github.tmi.global.auth.security.MemberAuthentication;
-import com.github.tmi.global.exception.TMIException;
 import com.github.tmi.member.domain.Member;
 import com.github.tmi.member.domain.enums.SocialType;
 import com.github.tmi.member.dto.LoginSuccessResponse;
@@ -25,8 +24,10 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberLoginService {
 
 	private final SocialService googleSocialService;
+	private final SocialService githubSocialService;
 	private final MemberService memberService;
 	private final MemberTokenService memberTokenService;
+	private final GithubTokenService githubTokenService;
 	private final JwtTokenProvider jwtTokenProvider;
 
 	@Transactional
@@ -40,8 +41,22 @@ public class MemberLoginService {
 		// 2. 기존 회원을 찾거나, 없으면 새로 가입
 		Member member = findOrRegisterMember(socialInfo);
 
-		// 3. 토큰 발급 후 로그인 응답 반환
+		// 3. GitHub 로그인인 경우, 액세스 토큰을 암호화 저장
+		storeGithubTokenIfNeeded(member, socialInfo);
+
+		// 4. 토큰 발급 후 로그인 응답 반환
 		return issueTokens(member);
+	}
+
+	private void storeGithubTokenIfNeeded(final Member member, final MemberSocialLoginResponse socialInfo) {
+		if (socialInfo.socialType() == SocialType.GITHUB && socialInfo.accessToken() != null) {
+			githubTokenService.saveOrUpdate(
+				member.getId(),
+				socialInfo.accessToken(),
+				socialInfo.socialLogin(),
+				null
+			);
+		}
 	}
 
 	// 소셜 타입에 따라 사용자 정보 조회
@@ -57,8 +72,7 @@ public class MemberLoginService {
 	private SocialService getSocialService(final SocialType socialType) {
 		return switch (socialType) {
 			case GOOGLE -> googleSocialService;
-			// TODO: GITHUB 소셜 로그인 구현체 추가 시 case 등록
-			default -> throw new TMIException(OAuthErrorCode.SOCIAL_TYPE_NOT_SUPPORTED);
+			case GITHUB -> githubSocialService;
 		};
 	}
 
