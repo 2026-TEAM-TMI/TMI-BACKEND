@@ -4,10 +4,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.github.tmi.global.auth.dto.MemberSocialLoginResponse;
+import com.github.tmi.global.auth.github.GithubTokenService;
 import com.github.tmi.global.exception.TMIException;
 import com.github.tmi.member.domain.Member;
 import com.github.tmi.member.domain.enums.Role;
 import com.github.tmi.member.domain.enums.SocialType;
+import com.github.tmi.member.dto.MemberInfoResponse;
 import com.github.tmi.member.exception.MemberErrorCode;
 import com.github.tmi.member.repository.MemberRepository;
 
@@ -20,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberService {
 
 	private final MemberRepository memberRepository;
+	private final GithubTokenService githubTokenService;
 
 	@Transactional(readOnly = true)
 	public boolean checkMemberExists(final String socialId, final SocialType socialType) {
@@ -30,6 +33,22 @@ public class MemberService {
 	public Member findMember(final String socialId, final SocialType socialType) {
 		return memberRepository.findBySocialIdAndSocialType(socialId, socialType)
 			.orElseThrow(() -> new TMIException(MemberErrorCode.MEMBER_NOT_FOUND));
+	}
+
+	@Transactional(readOnly = true)
+	public MemberInfoResponse getMyInfo(final Long memberId) {
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new TMIException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+		String githubLogin = githubTokenService.getGithubLoginOrNull(memberId);
+
+		return MemberInfoResponse.of(
+			githubLogin,
+			member.getName(),
+			member.getProfileImage(),
+			member.getRole(),
+			member.getEmail()
+		);
 	}
 
 	@Transactional

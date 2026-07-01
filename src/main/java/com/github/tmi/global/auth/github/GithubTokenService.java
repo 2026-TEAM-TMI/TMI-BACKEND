@@ -41,4 +41,11 @@ public class GithubTokenService {
 			.orElseThrow(() -> new TMIException(OAuthErrorCode.GITHUB_TOKEN_NOT_FOUND));
 		return aesEncryptor.decrypt(token.getAccessToken());
 	}
+
+	@Transactional(readOnly = true)
+	public String getGithubLoginOrNull(final Long memberId) {
+		return githubTokenRepository.findById(memberId)
+			.map(GithubToken::getGithubLogin)
+			.orElse(null);
+	}
 }
