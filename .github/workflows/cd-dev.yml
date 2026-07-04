@@ -1,0 +1,88 @@
+name: CD-dev
+
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v3
+
+      - name: JDK 17 설정
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Gradle 캐시
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: application-dev.yml 주입
+        run: |
+          mkdir -p src/main/resources
+          echo "${{ secrets.APPLICATION_DEV_YML }}" > src/main/resources/application-dev.yml
+
+      - name: 빌드
+        run: ./gradlew build -x test
+
+      - name: AWS 인증
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: ECR 로그인
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Docker 이미지 빌드 & ECR Push
+        run: |
+          docker build -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest .
+          docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
+
+      - name: EC2 배포
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          envs: DB_PASSWORD,ECR_REGISTRY,ECR_REPOSITORY
+          script: |
+            # 1) 레포가 없으면 최초 clone (가드를 맨 앞에)
+            if [ ! -d /home/ubuntu/TMI-BACKEND ]; then
+              git clone -b develop https://github.com/2026-TEAM-TMI/TMI-BACKEND.git /home/ubuntu/TMI-BACKEND
+            fi
+            cd /home/ubuntu/TMI-BACKEND
+            git fetch origin develop
+            git reset --hard origin/develop
+
+            # 2) 폴더 확보 후 .env 작성 (compose 변수 치환용)
+            cat > .env << EOF
+            DB_PASSWORD=$DB_PASSWORD
+            ECR_REGISTRY=$ECR_REGISTRY
+            ECR_REPOSITORY=$ECR_REPOSITORY
+            EOF
+
+            # 3) ECR 로그인 → 이미지 pull → 재기동
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
+              docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+            docker pull ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
+            docker-compose -f docker-compose-dev.yml down
+            docker-compose -f docker-compose-dev.yml up -d
