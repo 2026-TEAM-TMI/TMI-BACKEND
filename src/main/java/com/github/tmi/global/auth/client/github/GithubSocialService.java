@@ -15,9 +15,6 @@ import com.github.tmi.global.exception.TMIException;
 import com.github.tmi.member.domain.enums.SocialType;
 import com.github.tmi.member.service.SocialService;
 
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,15 +50,16 @@ public class GithubSocialService implements SocialService {
 	}
 
 	private String getOAuth2AccessToken(final String authorizationCode) {
-		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-		body.add("client_id", clientId);
-		body.add("client_secret", clientSecret);
-		body.add("code", authorizationCode);
-		body.add("redirect_uri", redirectUri);
 
 		GithubAccessTokenResponse response;
 		try {
-			response = githubAuthApiClient.getOAuth2AccessToken(body);
+			response = githubAuthApiClient.getOAuth2AccessToken(
+				"application/json",
+				clientId,
+				clientSecret,
+				authorizationCode,
+				redirectUri
+			);
 		} catch (FeignException e) {
 			log.error("Failed to get GitHub access token. Error: {}", e.contentUTF8(), e);
 			throw new TMIException(OAuthErrorCode.O_AUTH_TOKEN_ERROR);
