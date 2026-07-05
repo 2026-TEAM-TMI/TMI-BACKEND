@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum UploadType {
 
-	PROJECT_FILE("project-files"),       // 프로젝트 관련 추가 파일 (pdf, pptx, txt 등)
-	PROJECT_IMAGE("project-images"),     // 프로젝트 사진 (jpeg, png, pdf)
-	PORTFOLIO_IMAGE("portfolio-images"), // 포트폴리오에 첨부할 사진
+	PROJECT_FILE("project-files"),
+	PROJECT_IMAGE("project-images"),
+	PORTFOLIO_IMAGE("portfolio-images"),
 	;
 
 	private final String directory;
