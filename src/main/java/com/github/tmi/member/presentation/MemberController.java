@@ -1,5 +1,7 @@
 package com.github.tmi.member.presentation;
 
+import java.util.List;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.tmi.global.auth.annotation.CurrentMember;
+import com.github.tmi.global.auth.client.github.dto.GithubRepositoryResponse;
 import com.github.tmi.global.auth.dto.MemberSocialLoginRequest;
 import com.github.tmi.global.response.dto.SuccessResponse;
+import com.github.tmi.github.service.GithubRepositoryService;
 import com.github.tmi.member.dto.LoginSuccessResponse;
 import com.github.tmi.member.dto.MemberInfoResponse;
 import com.github.tmi.member.dto.TokenReissueResponse;
@@ -36,6 +40,7 @@ public class MemberController {
 	private final MemberLoginService memberLoginService;
 	private final MemberTokenService memberTokenService;
 	private final MemberService memberService;
+	private final GithubRepositoryService githubRepositoryService;
 
 	@PostMapping("/login")
 	public ResponseEntity<SuccessResponse<LoginSuccessResponse>> login(
@@ -64,6 +69,15 @@ public class MemberController {
 	) {
 		MemberInfoResponse response = memberService.getMyInfo(memberId);
 		return ResponseEntity.ok(SuccessResponse.of(MemberSuccessCode.GET_MY_INFO_SUCCESS, response));
+	}
+
+	@GetMapping("/me/repositories")
+	public ResponseEntity<SuccessResponse<List<GithubRepositoryResponse>>> getMyRepositories(
+		@CurrentMember final Long memberId
+	) {
+		List<GithubRepositoryResponse> repositories = githubRepositoryService.getMyRepositories(memberId);
+		return ResponseEntity.ok(
+			SuccessResponse.of(MemberSuccessCode.GET_REPOSITORIES_SUCCESS, repositories));
 	}
 
 	@PostMapping("/reissue")
