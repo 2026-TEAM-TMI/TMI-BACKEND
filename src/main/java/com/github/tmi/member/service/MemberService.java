@@ -43,6 +43,7 @@ public class MemberService {
 		String githubLogin = githubTokenService.getGithubLoginOrNull(memberId);
 
 		return MemberInfoResponse.of(
+			member.getId(),
 			githubLogin,
 			member.getName(),
 			member.getProfileImage(),
