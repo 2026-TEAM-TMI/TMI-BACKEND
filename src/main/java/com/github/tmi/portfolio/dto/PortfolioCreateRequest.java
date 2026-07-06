@@ -7,6 +7,11 @@ import com.github.tmi.portfolio.domain.enums.JobCategory;
 
 public record PortfolioCreateRequest(
 
+	// 0. 메타데이터
+	String portfolioTitle,
+	String portfolioDescription,
+	boolean isPublic,
+
 	// 1. 개인정보
 	String name,
 	Map<String, String> contact,
