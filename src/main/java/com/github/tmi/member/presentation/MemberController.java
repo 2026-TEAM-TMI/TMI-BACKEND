@@ -18,6 +18,7 @@ import com.github.tmi.global.auth.client.github.dto.GithubRepositoryResponse;
 import com.github.tmi.global.auth.dto.MemberSocialLoginRequest;
 import com.github.tmi.global.response.dto.SuccessResponse;
 import com.github.tmi.github.service.GithubRepositoryService;
+import com.github.tmi.member.dto.DashboardResponse;
 import com.github.tmi.member.dto.LoginSuccessResponse;
 import com.github.tmi.member.dto.MemberInfoResponse;
 import com.github.tmi.member.dto.TokenReissueResponse;
@@ -25,6 +26,7 @@ import com.github.tmi.member.exception.MemberSuccessCode;
 import com.github.tmi.member.service.MemberLoginService;
 import com.github.tmi.member.service.MemberService;
 import com.github.tmi.member.service.MemberTokenService;
+import com.github.tmi.portfolio.service.PortfolioService;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +43,7 @@ public class MemberController {
 	private final MemberTokenService memberTokenService;
 	private final MemberService memberService;
 	private final GithubRepositoryService githubRepositoryService;
+	private final PortfolioService portfolioService;
 
 	@PostMapping("/login")
 	public ResponseEntity<SuccessResponse<LoginSuccessResponse>> login(
@@ -78,6 +81,14 @@ public class MemberController {
 		List<GithubRepositoryResponse> repositories = githubRepositoryService.getMyRepositories(memberId);
 		return ResponseEntity.ok(
 			SuccessResponse.of(MemberSuccessCode.GET_REPOSITORIES_SUCCESS, repositories));
+	}
+
+	@GetMapping("/me/dashboard")
+	public ResponseEntity<SuccessResponse<DashboardResponse>> getMyDashboard(
+		@CurrentMember final Long memberId
+	) {
+		DashboardResponse response = portfolioService.getDashboard(memberId);
+		return ResponseEntity.ok(SuccessResponse.of(MemberSuccessCode.GET_DASHBOARD_SUCCESS, response));
 	}
 
 	@PostMapping("/reissue")
