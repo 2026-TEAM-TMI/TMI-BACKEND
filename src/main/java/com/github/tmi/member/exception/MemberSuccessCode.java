@@ -17,6 +17,7 @@ public enum MemberSuccessCode implements BaseCode {
 	LOGIN_SUCCESS(HttpStatus.OK, "로그인 성공"),
 	GET_MY_INFO_SUCCESS(HttpStatus.OK, "내 정보 조회 성공"),
 	GET_REPOSITORIES_SUCCESS(HttpStatus.OK, "GitHub 레포지토리 목록 조회 성공"),
+	GET_DASHBOARD_SUCCESS(HttpStatus.OK, "대시보드 조회 성공"),
 	REISSUE_SUCCESS(HttpStatus.OK, "액세스 토큰 재발급 성공"),
 	;
 
