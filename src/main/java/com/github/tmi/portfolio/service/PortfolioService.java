@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.tmi.file.service.FileService;
 import com.github.tmi.global.exception.TMIException;
 import com.github.tmi.member.domain.Member;
+import com.github.tmi.member.dto.DashboardResponse;
 import com.github.tmi.member.exception.MemberErrorCode;
 import com.github.tmi.member.repository.MemberRepository;
 import com.github.tmi.portfolio.domain.Portfolio;
@@ -75,5 +76,12 @@ public class PortfolioService {
 			.toList();
 
 		return new FindPortfolioResponse(portfolios);
+	}
+
+	@Transactional(readOnly = true)
+	public DashboardResponse getDashboard(final Long memberId) {
+		long portfolioCount = portfolioRepository.countByMemberId(memberId);
+		long totalViewsCount = portfolioRepository.sumViewsCountByMemberId(memberId);
+		return DashboardResponse.of(portfolioCount, totalViewsCount);
 	}
 }
