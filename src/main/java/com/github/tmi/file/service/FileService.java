@@ -28,6 +28,7 @@ public class FileService {
 	private static final Duration EXPIRY = Duration.ofMinutes(5);
 	private static final Duration GET_EXPIRY = Duration.ofDays(7); // presigned GET 최대 유효기간
 	private static final String PORTFOLIO_DIR = "portfolios"; // 생성된 포트폴리오 HTML 저장 위치
+	private static final String THUMBNAIL_DIR = "thumbnails"; // 포트폴리오 썸네일 이미지 저장 위치
 
 	private final S3Presigner s3Presigner;
 	private final S3Client s3Client;
@@ -85,6 +86,20 @@ public class FileService {
 				.contentType("text/html; charset=utf-8")
 				.build(),
 			RequestBody.fromString(html, StandardCharsets.UTF_8));
+
+		return getObjectUrl(key);
+	}
+
+	public String uploadThumbnail(final Long memberId, final byte[] image) {
+		String key = "%s/%d/%s.jpg".formatted(THUMBNAIL_DIR, memberId, UUID.randomUUID());
+
+		s3Client.putObject(
+			PutObjectRequest.builder()
+				.bucket(bucket)
+				.key(key)
+				.contentType("image/jpeg")
+				.build(),
+			RequestBody.fromBytes(image));
 
 		return getObjectUrl(key);
 	}
