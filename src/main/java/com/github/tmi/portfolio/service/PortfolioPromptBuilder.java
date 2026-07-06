@@ -41,6 +41,8 @@ public class PortfolioPromptBuilder {
 			sb.append("- 주소: ").append(request.address()).append('\n');
 		}
 		sb.append("- 연락처: ").append(formatContact(request.contact())).append('\n');
+		sb.append("- 프로필/대표 이미지 URL 목록: ")
+			.append(toUrlArray(request.portfolioImageKeys(), fileService::getObjectUrl)).append('\n');
 		sb.append("- 수상이력:\n").append(formatAwards(request.awards()));
 		sb.append("- 활동이력:\n").append(formatActivities(request.activities()));
 		sb.append('\n');

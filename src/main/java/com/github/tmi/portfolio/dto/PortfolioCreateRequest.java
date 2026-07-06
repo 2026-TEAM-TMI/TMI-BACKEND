@@ -13,6 +13,7 @@ public record PortfolioCreateRequest(
 	String address,
 	String description,
 	JobCategory jobCategory,
+	List<String> portfolioImageKeys,
 
 	// 전체 커스텀 프롬프트 (디자인/톤 등 자유 요구사항)
 	String customPrompt,
