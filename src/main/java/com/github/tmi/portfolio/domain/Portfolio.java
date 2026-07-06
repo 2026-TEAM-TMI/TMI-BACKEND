@@ -38,6 +38,9 @@ public class Portfolio {
 	@Column(nullable = false)
 	private String title;
 
+	@Column(nullable = true, length = 1024)
+	private String thumbnailImage;
+
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private JobCategory jobCategory;
@@ -63,6 +66,7 @@ public class Portfolio {
 
 	public static Portfolio create(
 		final String title,
+		final String thumbnailImage,
 		final JobCategory jobCategory,
 		final String description,
 		final String url,
@@ -71,6 +75,7 @@ public class Portfolio {
 	) {
 		return Portfolio.builder()
 			.title(title)
+			.thumbnailImage(thumbnailImage)
 			.jobCategory(jobCategory)
 			.description(description)
 			.url(url)
