@@ -28,6 +28,7 @@ public class PortfolioController {
 		@RequestBody final PortfolioCreateRequest request
 	) {
 		String url = portfolioService.createPortfolio(memberId, request);
+		portfolioService.savePortfolio(memberId, url, request);
 		return ResponseEntity.ok(
 			SuccessResponse.of(PortfolioSuccessCode.GENERATE_SUCCESS, PortfolioGenerateResponse.of(url)));
 	}
