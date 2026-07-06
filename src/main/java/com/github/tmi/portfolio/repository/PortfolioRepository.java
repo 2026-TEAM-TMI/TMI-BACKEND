@@ -9,5 +9,7 @@ import com.github.tmi.portfolio.domain.Portfolio;
 
 @Repository
 public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
+	List<Portfolio> findAllByMemberId(Long memberId);
+
 	List<Portfolio> findAllByMemberIdAndPublished(Long memberId, boolean published);
 }

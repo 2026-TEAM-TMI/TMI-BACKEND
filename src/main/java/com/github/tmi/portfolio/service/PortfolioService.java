@@ -60,18 +60,17 @@ public class PortfolioService {
 		portfolioRepository.save(portfolio);
 	}
 
+	@Transactional(readOnly = true)
 	public FindPortfolioResponse findPortfoliosByMemberId(Long loginMemberId, Long memberId) {
-
-		boolean onlyPublic = true;
-
 		memberRepository.findById(memberId)
 			.orElseThrow(() -> new TMIException(MemberErrorCode.MEMBER_NOT_FOUND));
 
-		if (loginMemberId.equals(memberId)) {
-			onlyPublic = false;
-		}
+		boolean isOwner = loginMemberId.equals(memberId);
+		List<Portfolio> found = isOwner
+			? portfolioRepository.findAllByMemberId(memberId)
+			: portfolioRepository.findAllByMemberIdAndPublished(memberId, true);
 
-		List<PortfolioDto> portfolios = portfolioRepository.findAllByMemberIdAndPublished(memberId, onlyPublic).stream()
+		List<PortfolioDto> portfolios = found.stream()
 			.map(PortfolioDto::from)
 			.toList();
 
