@@ -1,10 +1,10 @@
 package com.github.tmi.portfolio.dto;
 
 public record PortfolioGenerateResponse(
-	String html
+	String url
 ) {
 
-	public static PortfolioGenerateResponse of(final String html) {
-		return new PortfolioGenerateResponse(html);
+	public static PortfolioGenerateResponse of(final String url) {
+		return new PortfolioGenerateResponse(url);
 	}
 }
