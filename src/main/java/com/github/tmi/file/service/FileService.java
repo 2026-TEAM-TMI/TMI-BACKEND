@@ -1,5 +1,6 @@
 package com.github.tmi.file.service;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.UUID;
 
@@ -11,6 +12,8 @@ import com.github.tmi.file.dto.PresignedUrlRequest;
 import com.github.tmi.file.dto.PresignedUrlResponse;
 
 import lombok.RequiredArgsConstructor;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -24,8 +27,10 @@ public class FileService {
 
 	private static final Duration EXPIRY = Duration.ofMinutes(5);
 	private static final Duration GET_EXPIRY = Duration.ofDays(7); // presigned GET 최대 유효기간
+	private static final String PORTFOLIO_DIR = "portfolios"; // 생성된 포트폴리오 HTML 저장 위치
 
 	private final S3Presigner s3Presigner;
+	private final S3Client s3Client;
 
 	@Value("${aws.s3.bucket}")
 	private String bucket;
@@ -68,6 +73,20 @@ public class FileService {
 
 	public String getObjectUrl(final String key) {
 		return "https://%s.s3.%s.amazonaws.com/%s".formatted(bucket, region, key);
+	}
+
+	public String uploadPortfolioHtml(final Long memberId, final String html) {
+		String key = "%s/%d/%s.html".formatted(PORTFOLIO_DIR, memberId, UUID.randomUUID());
+
+		s3Client.putObject(
+			PutObjectRequest.builder()
+				.bucket(bucket)
+				.key(key)
+				.contentType("text/html; charset=utf-8")
+				.build(),
+			RequestBody.fromString(html, StandardCharsets.UTF_8));
+
+		return getObjectUrl(key);
 	}
 
 	private String buildKey(final Long memberId, final UploadType uploadType, final String fileName) {
