@@ -14,6 +14,9 @@ public record PortfolioCreateRequest(
 	String description,
 	JobCategory jobCategory,
 
+	// 전체 커스텀 프롬프트 (디자인/톤 등 자유 요구사항)
+	String customPrompt,
+
 	// 2. 프로젝트
 	List<ProjectRequest> projects,
 
