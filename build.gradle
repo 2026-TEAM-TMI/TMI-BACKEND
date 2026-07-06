@@ -55,6 +55,9 @@ dependencies {
     // AWS S3
     implementation 'software.amazon.awssdk:s3'
 
+    // Spring AI (OpenAI 호환 API)
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 
@@ -64,6 +67,7 @@ dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:2023.0.1"
         mavenBom "software.amazon.awssdk:bom:2.28.16"
+        mavenBom "org.springframework.ai:spring-ai-bom:1.0.0"
     }
 }
 
