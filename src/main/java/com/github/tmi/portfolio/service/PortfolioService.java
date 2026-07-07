@@ -2,6 +2,8 @@ package com.github.tmi.portfolio.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,9 +14,11 @@ import com.github.tmi.member.dto.DashboardResponse;
 import com.github.tmi.member.exception.MemberErrorCode;
 import com.github.tmi.member.repository.MemberRepository;
 import com.github.tmi.portfolio.domain.Portfolio;
+import com.github.tmi.portfolio.domain.enums.JobCategory;
 import com.github.tmi.portfolio.dto.FindPortfolioResponse;
 import com.github.tmi.portfolio.dto.PortfolioCreateRequest;
 import com.github.tmi.portfolio.dto.PortfolioDto;
+import com.github.tmi.portfolio.dto.PortfolioFeedResponse;
 import com.github.tmi.portfolio.repository.PortfolioRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -76,6 +80,15 @@ public class PortfolioService {
 			.toList();
 
 		return new FindPortfolioResponse(portfolios);
+	}
+
+	@Transactional(readOnly = true)
+	public PortfolioFeedResponse findPublicFeed(final JobCategory jobCategory, final Pageable pageable) {
+		Page<Portfolio> portfolios = (jobCategory == null)
+			? portfolioRepository.findAllByPublished(true, pageable)
+			: portfolioRepository.findAllByPublishedAndJobCategory(true, jobCategory, pageable);
+
+		return PortfolioFeedResponse.from(portfolios.map(PortfolioDto::from));
 	}
 
 	@Transactional(readOnly = true)
