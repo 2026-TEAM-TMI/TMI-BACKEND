@@ -104,6 +104,15 @@ public class FileService {
 		return getObjectUrl(key);
 	}
 
+	public byte[] getObjectBytes(final String key) {
+		return s3Client.getObjectAsBytes(
+			GetObjectRequest.builder()
+				.bucket(bucket)
+				.key(key)
+				.build()
+		).asByteArray();
+	}
+
 	private String buildKey(final Long memberId, final UploadType uploadType, final String fileName) {
 		return "%s/%d/%s%s".formatted(uploadType.getDirectory(), memberId, UUID.randomUUID(), extractExtension(fileName));
 	}
