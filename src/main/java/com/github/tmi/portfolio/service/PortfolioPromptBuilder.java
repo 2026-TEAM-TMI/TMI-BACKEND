@@ -65,14 +65,16 @@ public class PortfolioPromptBuilder {
 			}
 			sb.append("- 강조하고 싶은 내용: ").append(orNone(project.description())).append('\n');
 			sb.append("- 이미지 URL 목록: ").append(toUrlArray(project.imageKeys(), fileService::getObjectUrl)).append('\n');
-			sb.append("- 추가 첨부 파일: ")
-				.append(toUrlArrayOrNull(project.fileKeys(), fileService::createPresignedGetUrl)).append("\n\n");
+			sb.append("- 추가 첨부 파일 다운로드 URL(HTML 링크용): ")
+				.append(toUrlArrayOrNull(project.fileKeys(), fileService::createPresignedGetUrl)).append('\n');
+			sb.append("- 첨부 파일 S3 key(readReferenceFile 도구로 내용 파악): ")
+				.append(keyArrayOrNull(project.fileKeys())).append("\n\n");
 		}
 
 		sb.append("---\n");
-		sb.append("각 프로젝트의 레포지토리에 대해 제공된 도구");
-		sb.append("(getMyCommitMessages, getMyPullRequests, getReadme, listSourceFiles, readSourceFile)를 호출해\n");
-		sb.append("실제 커밋·PR·README·소스 파일을 확인한 뒤, System Prompt의 규칙에 따라 단일 포트폴리오 HTML을 생성하라.\n");
+		sb.append("각 프로젝트에 대해 제공된 도구");
+		sb.append("(getMyCommitMessages, getMyPullRequests, getReadme, listSourceFiles, readSourceFile, readReferenceFile)를 호출해\n");
+		sb.append("실제 커밋·PR·README·소스 파일과 첨부 참고자료 내용을 확인한 뒤, System Prompt의 규칙에 따라 단일 포트폴리오 HTML을 생성하라.\n");
 
 		return sb.toString();
 	}
@@ -144,6 +146,16 @@ public class PortfolioPromptBuilder {
 			return "null";
 		}
 		return toUrlArray(keys, urlMapper);
+	}
+
+	// S3 key 목록을 그대로 JSON 배열 문자열로 (readReferenceFile 도구 호출용)
+	private String keyArrayOrNull(final List<String> keys) {
+		if (keys == null || keys.isEmpty()) {
+			return "null";
+		}
+		return keys.stream()
+			.map(key -> "\"" + key + "\"")
+			.collect(Collectors.joining(", ", "[", "]"));
 	}
 
 	private String orNone(final String value) {
